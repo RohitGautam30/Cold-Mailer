@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cold Mailer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body { font-family: Arial, sans-serif; background: #fff; }
+        .container {
+            max-width: 420px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        h2 { text-align: center; margin-bottom: 5px; }
+        .subtitle { text-align: center; font-size: 13px; color: #555; margin-bottom: 15px; }
+
+        input, textarea, select, button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        textarea { height: 140px; resize: none; }
+        .note { text-align: center; margin-top: 10px; font-size: 14px; }
+
+        hr { margin: 20px 0; }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Cold Mailer</h2>
+    <p class="subtitle">Auto Resume Attachment Enabled</p>
+
+    <!-- Upload PDF -->
+    <form id="uploadForm">
+        <input type="file" name="pdf" accept="application/pdf" required>
+        <button type="submit">Upload / Replace Resume</button>
+    </form>
+
+    <p id="uploadStatus" class="note"></p>
+
+    <hr>
+
+    <!-- Send Email -->
+    <form id="mailForm">
+
+        <input type="email" name="receiver" placeholder="Receiver Email" required>
+
+        <select name="subject">
+            <option value="AIML intern(best you'll find)">AIML intern</option>
+            <option value="Full stack intern (best you'll find)">Full stack intern</option>
+            <option value="Backend intern (best you'll find)" selected>Backend intern</option>
+            <option value="Frontend intern (best you'll find)">Frontend intern</option>
+            <option value="Python intern (best you'll find)">Python intern</option>
+            <option value="Summer Internship 2026">Summer intern</option>
+        </select>
+
+        <textarea name="message"></textarea>
+
+        <button type="submit">Send Email</button>
+
+    </form>
+
+    <p id="status" class="note"></p>
+
+</div>
+
+<script>
+const mailForm = document.getElementById("mailForm");
+const uploadForm = document.getElementById("uploadForm");
+
+const status = document.getElementById("status");
+const uploadStatus = document.getElementById("uploadStatus");
+
+const subjectSelect = document.querySelector("select[name='subject']");
+const messageBox = document.querySelector("textarea[name='message']");
+
+const templates = {
+
+    fullsatck: `Hi, i'm rohit a 3rd year student at IIT JAMMU, experienced in building responsive websites using node.js and react.js .I enjoy working on both front-end and back-end development. I would love to be an intern for you if there is any opportunity i'm sharing my resume to you.
+This is my portfolio : https://3d-portfolio-website-dun.vercel.app/`,
+
+    backend: `Hi, i'm rohit a 3rd year student at IIT JAMMU, experienced in building responsive websites using node.js and react.js .I enjoy working on both front-end and back-end development. I would love to be an intern for you if there is any opportunity i'm sharing my resume to you.
+This is my portfolio : https://3d-portfolio-website-dun.vercel.app/`,
+
+    frontend: `Hi, I'm Rohit a 3rd year student at IIT JAMMU, experienced in building responsive websites using HTML, CSS, JavaScript, and React. I enjoy working on both front-end and back-end development I'm sharing my resume to you.
+This is my portfolio : https://3d-portfolio-website-dun.vercel.app/`,
+
+    python: `Hi, i'm rohit a 3rd year student at IIT JAMMU,proficient in python and Django as well as ML . I would love to be an intern for you if there is any opportunity i'm sharing my resume to you.
+This is my portfolio : https://3d-portfolio-website-dun.vercel.app/`,
+
+    summer: `Hi, I'm Rohit a 3rd year engineering student at IIT JAMMU, experienced in software development and AI-ML, i would love to be an intern for you if there is any opportunity i'm sharing my resume to you. Thank you!!
+This is my portfolio: https://3d-portfolio-website-dun.vercel.app/`,
+
+    AIML: `Hi, I am a third year student at IIT Jammu. I am interested in interning for you as an intern. I am proficient in python and sql as well as ML.I have attached my resume for your reference.
+This is my portfolio: https://3d-portfolio-website-dun.vercel.app/`
+};
+
+// Set default message
+messageBox.value = templates.backend;
+
+// Auto update message when subject changes
+subjectSelect.addEventListener("change", () => {
+    const subject = subjectSelect.value.toLowerCase();
+
+    if (subject.includes("backend")) messageBox.value = templates.backend;
+    else if (subject.includes("aiml")) messageBox.value = templates.AIML;
+    else if (subject.includes("full stack")) messageBox.value = templates.fullsatck;
+    else if (subject.includes("frontend")) messageBox.value = templates.frontend;
+    else if (subject.includes("python")) messageBox.value = templates.python;
+    else if (subject.includes("summer")) messageBox.value = templates.summer;
+});
+
+
+// Send email
+mailForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    status.innerText = "Sending...";
+
+    const res = await fetch("/", { method: "POST", body: new FormData(mailForm) });
+    const data = await res.json();
+
+    status.innerText = data.status === "success"
+        ? "Email sent successfully."
+        : "Failed to send.";
+});
+
+// Upload PDF
+uploadForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    uploadStatus.innerText = "Uploading...";
+
+    const res = await fetch("/upload", { method: "POST", body: new FormData(uploadForm) });
+    const data = await res.json();
+
+    uploadStatus.innerText = data.status === "success"
+        ? "Resume updated successfully."
+        : "Upload failed.";
+});
+</script>
+
+</body>
+</html>
